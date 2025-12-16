@@ -3,10 +3,9 @@ package com.tcc.oficina_app.controller;
 
 import com.tcc.oficina_app.DTO.ItemServicoDTO;
 import com.tcc.oficina_app.DTO.OrcamentoDTO;
-import com.tcc.oficina_app.model.Orcamento;
+import com.tcc.oficina_app.model.*;
 import com.tcc.oficina_app.services.OrcamentoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +17,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/orcamento")
 @RequiredArgsConstructor
 public class OrcamentoController {
-    @Autowired
     private final OrcamentoService orcamentoService;
 
     private OrcamentoDTO toDTO(Orcamento orcamento) {
         OrcamentoDTO dto = new OrcamentoDTO();
         dto.setIdOrcamento(orcamento.getIdOrcamento());
-        dto.setSituacao(orcamento.getSituacao().name());
+        dto.setSituacao(orcamento.getSituacao());
         dto.setValorTotal(orcamento.getValorTotal());
         dto.setIdCliente(orcamento.getCliente().getIdCliente());
         dto.setPlacaVeiculo(orcamento.getVeiculo().getPlaca());
@@ -41,6 +39,47 @@ public class OrcamentoController {
         return dto;
     }
 
+    private Orcamento toEntity(OrcamentoDTO dto) {
+        Orcamento orcamento = new Orcamento();
+        orcamento.setIdOrcamento(dto.getIdOrcamento());
+
+        if (dto.getSituacao() != null) {
+            orcamento.setSituacao(dto.getSituacao());
+        }
+        if (dto.getIdCliente() != null) {
+            Cliente cliente = new Cliente();
+            cliente.setIdCliente(dto.getIdCliente());
+            orcamento.setCliente(cliente);
+        }
+        if (dto.getPlacaVeiculo() != null) {
+            Veiculo veiculo = new Veiculo();
+            veiculo.setPlaca(dto.getPlacaVeiculo());
+            orcamento.setVeiculo(veiculo);
+        }
+        if (dto.getItens() != null) {
+            List<ItemServico> itens = dto.getItens().stream()
+                    .map(this::toItemEntity)
+                    .collect(Collectors.toList());
+            itens.forEach(item -> item.setOrcamento(orcamento));
+            orcamento.setItensServico(itens);
+        }
+
+        return orcamento;
+    }
+
+    private ItemServico toItemEntity(ItemServicoDTO itemDto) {
+        ItemServico item = new ItemServico();
+        item.setId(itemDto.getIdItemServico());
+        item.setQtdHoras(itemDto.getQtdHoras());
+        item.setDesconto(itemDto.getDesconto());
+        if (itemDto.getIdServico() != null) {
+            Servico servico = new Servico();
+            servico.setId(itemDto.getIdServico());
+            item.setServico(servico);
+        }
+
+        return item;
+    }
     @GetMapping
     public ResponseEntity<List<OrcamentoDTO>> listarTodos() {
         List<OrcamentoDTO> lista = orcamentoService.listarTodos()
@@ -80,6 +119,23 @@ public class OrcamentoController {
             return ResponseEntity.badRequest().build();
         }
     }
+    @PutMapping("api/orcamento/atualizarSituacao/{id}")
+    public ResponseEntity<OrcamentoDTO> atualizarSituacao(@PathVariable Integer id,
+                                                          @RequestBody OrcamentoDTO dto){
+        try{
+            StatusOrcamento novaSituacao = dto.getSituacao();
+            Orcamento orcamentoAtualizado = orcamentoService.atualizarOrcamento(
+                    id,
+                    novaSituacao,
+                    null,
+                    null
+            );
+            return ResponseEntity.ok(toDTO(orcamentoAtualizado));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @DeleteMapping("/{id}/itens/{idItem}")
     public ResponseEntity<OrcamentoDTO> removerItem(@PathVariable Integer id, @PathVariable Long idItem) {
         try {
@@ -100,5 +156,4 @@ public class OrcamentoController {
             return ResponseEntity.notFound().build();
         }
     }
-
 }

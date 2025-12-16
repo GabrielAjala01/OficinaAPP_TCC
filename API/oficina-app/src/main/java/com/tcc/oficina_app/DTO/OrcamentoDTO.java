@@ -1,5 +1,6 @@
 package com.tcc.oficina_app.DTO;
 
+import com.tcc.oficina_app.model.StatusOrcamento;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import java.util.List;
 @Data
 public class OrcamentoDTO {
     private Integer idOrcamento;
-    private String situacao;
+    private StatusOrcamento situacao;
     private BigDecimal valorTotal;
     private Integer idCliente;
     private String placaVeiculo;
