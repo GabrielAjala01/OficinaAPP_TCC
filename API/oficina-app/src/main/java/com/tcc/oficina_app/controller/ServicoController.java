@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,35 @@ public class ServicoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @PutMapping("/{id}/sub-servicos")
+    public ResponseEntity<ServicoDTO> atualizarSubServicos(@PathVariable Long id,
+                                                           @RequestBody List<Long> novosIdsSubServicos) {
+        try {
+            Servico servico = servicoService.buscarServicoPorId(id)
+                    .orElseThrow(() -> new RuntimeException("Serviço principal não encontrado"));
+            List<Long> idsAtuais = new ArrayList<>();
+            for (ServicoSubServico sss : servico.getSubServicos()) {
+                Long idSubServico = sss.getIdSubServico();
+                idsAtuais.add(idSubServico);
+            }
+
+            for (Long idAtual : idsAtuais) {
+                if (!novosIdsSubServicos.contains(idAtual)) {
+                    servicoService.removerSubServico(id, idAtual);
+                }
+            }
+            for (Long idNovo : novosIdsSubServicos) {
+                if (!idsAtuais.contains(idNovo)) {
+                    servicoService.adicionarSubServico(id, idNovo);
+                }
+            }
+            Servico servicoAtualizado = servicoService.buscarServicoPorId(id).get();
+            return ResponseEntity.ok(toDTO(servicoAtualizado));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
     @DeleteMapping("/{id}")
