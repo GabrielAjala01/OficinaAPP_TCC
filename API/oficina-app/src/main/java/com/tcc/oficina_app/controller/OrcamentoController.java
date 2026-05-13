@@ -156,4 +156,9 @@ public class OrcamentoController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/{id}/gerar-os")
+    public ResponseEntity<OrdemServico> gerarOS(@PathVariable int id) {
+        OrdemServico novaOS = orcamentoService.converterParaOS(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaOS);
+    }
 }

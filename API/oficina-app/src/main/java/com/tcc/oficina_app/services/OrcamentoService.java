@@ -3,12 +3,16 @@ package com.tcc.oficina_app.services;
 import com.tcc.oficina_app.model.*;
 import com.tcc.oficina_app.repository.ItemServicoRepository;
 import com.tcc.oficina_app.repository.OrcamentoRepository;
+import com.tcc.oficina_app.repository.OrdemServicoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,5 +138,17 @@ public class OrcamentoService {
         orcamento.setValorTotal(novoTotal.setScale(2, RoundingMode.HALF_UP));
         return orcamentoRepository.save(orcamento);
     }
+    @Autowired
+    private OrdemServicoRepository ordemServicoRepository;
+    @Transactional
+    public OrdemServico converterParaOS(int idOrcamento) {
+        Orcamento orcamento = orcamentoRepository.findById(idOrcamento)
+                .orElseThrow(() -> new RuntimeException("Orçamento não encontrado"));
+        OrdemServico os = new OrdemServico();
+        os.setOrcamento(orcamento);
+        os.setDataAbertura(LocalDate.now());
+        os.setStatus(OrdemServico.Status.EM_ANDAMENTO);
 
+        return ordemServicoRepository.save(os);
+    }
 }

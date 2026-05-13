@@ -36,6 +36,7 @@ public class OrdemServico {
     private Status status;
 
 
+
     @OneToOne(optional = false)
     @JoinColumn(name = "id_orcamento", nullable = false, unique = true)
     private Orcamento orcamento;
@@ -43,7 +44,11 @@ public class OrdemServico {
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrdemServicoMaterial> materiaisUsados = new ArrayList<>();
 
+    @ManyToOne
+    private Cliente cliente;
 
+    @ManyToOne
+    private Veiculo veiculo;
 
     // repository
 

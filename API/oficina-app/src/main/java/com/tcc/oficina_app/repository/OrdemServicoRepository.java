@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Integer> {
-    OrdemServico save(OrdemServico ordenServico);
+    OrdemServico save(OrdemServico ordemServico);
 }
