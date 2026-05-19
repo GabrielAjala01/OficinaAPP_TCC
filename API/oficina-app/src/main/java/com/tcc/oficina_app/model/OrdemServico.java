@@ -1,5 +1,6 @@
 package com.tcc.oficina_app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,6 +33,7 @@ public class OrdemServico {
     @Column(name = "data_entrega")
     private LocalDate dataEntrega;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private Status status;
 
@@ -39,15 +41,18 @@ public class OrdemServico {
 
     @OneToOne(optional = false)
     @JoinColumn(name = "id_orcamento", nullable = false, unique = true)
+    @JsonIgnore
     private Orcamento orcamento;
 
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrdemServicoMaterial> materiaisUsados = new ArrayList<>();
 
     @ManyToOne
+    @JoinColumn(name = "id_cliente")
     private Cliente cliente;
 
     @ManyToOne
+    @JoinColumn(name = "placa_veiculo")
     private Veiculo veiculo;
 
     // repository

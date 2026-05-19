@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Service
 @RequiredArgsConstructor
 public class OrcamentoService {
@@ -142,13 +144,30 @@ public class OrcamentoService {
     private OrdemServicoRepository ordemServicoRepository;
     @Transactional
     public OrdemServico converterParaOS(int idOrcamento) {
-        Orcamento orcamento = orcamentoRepository.findById(idOrcamento)
-                .orElseThrow(() -> new RuntimeException("Orçamento não encontrado"));
+        Orcamento  orcamento = orcamentoRepository.findById(idOrcamento);
+
+        if (orcamento == null) {
+            throw new IllegalArgumentException("Orçamento não encontrado com ID: " + idOrcamento);
+        }
+
+        if (orcamento.getOrdemServico() != null) {
+            return orcamento.getOrdemServico();
+        }
+
+        if (orcamento.getSituacao() != StatusOrcamento.APROVADO) {
+            orcamento.setSituacao(StatusOrcamento.APROVADO);
+        }
         OrdemServico os = new OrdemServico();
         os.setOrcamento(orcamento);
-        os.setDataAbertura(LocalDate.now());
+        os.setCliente(orcamento.getCliente());
+        os.setVeiculo(orcamento.getVeiculo());
         os.setStatus(OrdemServico.Status.EM_ANDAMENTO);
+        os.setDataAbertura(LocalDate.now());
 
-        return ordemServicoRepository.save(os);
+        orcamento.setOrdemServico(os);
+
+        Orcamento orcamentoSalvo = orcamentoRepository.save(orcamento);
+
+        return orcamentoSalvo.getOrdemServico();
     }
 }

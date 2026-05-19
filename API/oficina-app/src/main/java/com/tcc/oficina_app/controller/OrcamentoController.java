@@ -119,7 +119,7 @@ public class OrcamentoController {
             return ResponseEntity.badRequest().build();
         }
     }
-    @PutMapping("api/orcamento/atualizarSituacao/{id}")
+    @PutMapping("/atualizarSituacao/{id}")
     public ResponseEntity<OrcamentoDTO> atualizarSituacao(@PathVariable Integer id,
                                                           @RequestBody OrcamentoDTO dto){
         try{
@@ -158,7 +158,15 @@ public class OrcamentoController {
     }
     @PostMapping("/{id}/gerar-os")
     public ResponseEntity<OrdemServico> gerarOS(@PathVariable int id) {
-        OrdemServico novaOS = orcamentoService.converterParaOS(id);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaOS);
+        try {
+            OrdemServico novaOS = orcamentoService.converterParaOS(id);
+
+            OrcamentoDTO dto = toDTO(novaOS.getOrcamento());
+            return ResponseEntity.status(HttpStatus.CREATED).body(novaOS);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
