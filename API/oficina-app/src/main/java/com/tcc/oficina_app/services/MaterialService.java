@@ -4,6 +4,7 @@ import com.tcc.oficina_app.model.Material;
 import com.tcc.oficina_app.repository.MaterialRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,11 +12,17 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MaterialService {
-    MaterialRepository materialRepository;
+
+    private final MaterialRepository materialRepository;
 
     public Material buscarPorId(Integer id) {
         return materialRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Material não encontrado com ID: " + id));
+    }
+
+    public Material buscarPorDescricao(String descricao) {
+        return materialRepository.findByDescricaoIgnoreCase(descricao)
+                .orElseThrow(() -> new IllegalArgumentException("Material não encontrado com a descrição: " + descricao));
     }
 
     public List<Material> listarTodos() {
@@ -43,22 +50,21 @@ public class MaterialService {
     }
 
     @Transactional
-    public Material adicionarEntrada(Integer idMaterial, Integer quantidadeEntrada) {
+    public Material adicionarEntrada(String descricao, Integer quantidadeEntrada) {
+        Material material = buscarPorDescricao(descricao);
         if (quantidadeEntrada <= 0) {
             throw new IllegalArgumentException("A quantidade de entrada nula.");
         }
-
-        Material material = buscarPorId(idMaterial);
         material.setQuantidade(material.getQuantidade() + quantidadeEntrada);
 
         return materialRepository.save(material);
     }
     @Transactional
-    public Material registrarSaida(Integer idMaterial, Integer quantidadeSaida) {
+    public Material registrarSaida(String descricao, Integer quantidadeSaida) {
         if (quantidadeSaida <= 0) {
             throw new IllegalArgumentException("A quantidade de saída não pode ser nula.");
         }
-        Material material = buscarPorId(idMaterial);
+        Material material = buscarPorDescricao(descricao);
         if (material.getQuantidade() < quantidadeSaida) {
             throw new IllegalStateException("Erro: "+material.getDescricao()+ "\nEstoque insuficiente: " + material.getQuantidade());
         }

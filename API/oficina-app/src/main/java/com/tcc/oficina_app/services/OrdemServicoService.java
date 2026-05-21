@@ -62,8 +62,10 @@ public class OrdemServicoService {
 
         OrdemServico os = new OrdemServico();
         os.setOrcamento(orcamento);
+        os.setCliente(orcamento.getCliente());
+        os.setVeiculo(orcamento.getVeiculo());
         os.setDataAbertura(LocalDate.now());
-        os.setStatus(OrdemServico.Status.EM_ANDAMENTO); // Status inicial
+        os.setStatus(OrdemServico.Status.EM_ANDAMENTO);
 
         OrdemServico osSalva = osRepository.save(os);
 
@@ -74,7 +76,7 @@ public class OrdemServicoService {
     }
 
     @Transactional
-    public OrdemServico declararMaterial(Integer idOS, Integer idMaterial, Integer qtdUsada) {
+    public OrdemServico declararMaterial(Integer idOS, String descricao, Integer qtdUsada) {
 
         OrdemServico os = buscarPorId(idOS)
                 .orElseThrow(() -> new IllegalArgumentException("OS não encontrada."));
@@ -82,12 +84,15 @@ public class OrdemServicoService {
         if (os.getStatus() != OrdemServico.Status.EM_ANDAMENTO) {
             throw new IllegalStateException("Só é possível adicionar material a OS em EM_ANDAMENTO.");
         }
-        Material material = materialService.registrarSaida(idMaterial, qtdUsada);
+        Material material = materialService.buscarPorDescricao(descricao);
+        if (material == null) {
+            throw new IllegalStateException("Material não encontrado no estoque");
+        }
 
         OrdemServicoMaterial osMaterial = new OrdemServicoMaterial();
         OrdemServicoMaterialId idComp = new OrdemServicoMaterialId();
         idComp.setOrdemServicoId(os.getIdOS());
-        idComp.setMaterialId(idMaterial);
+        idComp.setMaterialId(material.getIdMaterial());
 
         osMaterial.setId(idComp);
         osMaterial.setOrdemServico(os);

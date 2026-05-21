@@ -5,6 +5,7 @@ import com.tcc.oficina_app.DTO.ItemServicoDTO;
 import com.tcc.oficina_app.DTO.OrcamentoDTO;
 import com.tcc.oficina_app.model.*;
 import com.tcc.oficina_app.services.OrcamentoService;
+import com.tcc.oficina_app.services.OrdemServicoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrcamentoController {
     private final OrcamentoService orcamentoService;
+    private final OrdemServicoService ordemServicoService;
 
     private OrcamentoDTO toDTO(Orcamento orcamento) {
         OrcamentoDTO dto = new OrcamentoDTO();
@@ -157,9 +159,9 @@ public class OrcamentoController {
         }
     }
     @PostMapping("/{id}/gerar-os")
-    public ResponseEntity<OrdemServico> gerarOS(@PathVariable int id) {
+    public ResponseEntity<OrdemServico> gerarOS(@PathVariable Integer id) {
         try {
-            OrdemServico novaOS = orcamentoService.converterParaOS(id);
+            OrdemServico novaOS = ordemServicoService.converterOrcamentoParaOS(id);
 
             OrcamentoDTO dto = toDTO(novaOS.getOrcamento());
             return ResponseEntity.status(HttpStatus.CREATED).body(novaOS);

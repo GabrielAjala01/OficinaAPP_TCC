@@ -20,9 +20,10 @@ import java.util.List;
 public class Material {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(length = 20, nullable = false)
     @EqualsAndHashCode.Include
-    private int idMaterial;
+    private Integer idMaterial;
 
     @Column(nullable = false, length = 150)
     private String descricao;

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, Integer> {
@@ -13,5 +14,6 @@ public interface MaterialRepository extends JpaRepository<Material, Integer> {
 
     @Query("SELECT m FROM Material m WHERE m.quantidade <= m.minimo")
     List<Material> findMateriaisAbaixoDoMinimo();
+    Optional<Material> findByDescricaoIgnoreCase(String descricao);
 
 }
