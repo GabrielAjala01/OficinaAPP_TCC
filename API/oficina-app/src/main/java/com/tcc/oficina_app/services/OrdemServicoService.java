@@ -84,9 +84,11 @@ public class OrdemServicoService {
         if (os.getStatus() != OrdemServico.Status.EM_ANDAMENTO) {
             throw new IllegalStateException("Só é possível adicionar material a OS em EM_ANDAMENTO.");
         }
-        Material material = materialService.buscarPorDescricao(descricao);
+        Material material = materialService.registrarSaida(descricao, qtdUsada);
         if (material == null) {
             throw new IllegalStateException("Material não encontrado no estoque");
+        }else{
+
         }
 
         OrdemServicoMaterial osMaterial = new OrdemServicoMaterial();

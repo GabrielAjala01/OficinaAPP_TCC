@@ -14,6 +14,8 @@ public interface MaterialRepository extends JpaRepository<Material, Integer> {
 
     @Query("SELECT m FROM Material m WHERE m.quantidade <= m.minimo")
     List<Material> findMateriaisAbaixoDoMinimo();
+
+
     Optional<Material> findByDescricaoIgnoreCase(String descricao);
 
 }
