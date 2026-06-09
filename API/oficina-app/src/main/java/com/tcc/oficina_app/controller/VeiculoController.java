@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/veiculos")
 @RequiredArgsConstructor
@@ -82,7 +85,13 @@ public class VeiculoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
+    }
+    @GetMapping
+    public ResponseEntity<List<VeiculoDTO>> listarTodos() {
+        List<VeiculoDTO> lista = veiculoService.listarTodos().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(lista);
     }
     @DeleteMapping("/{placa}")
     public ResponseEntity<Void> deletarVeiculo(@PathVariable String placa) {

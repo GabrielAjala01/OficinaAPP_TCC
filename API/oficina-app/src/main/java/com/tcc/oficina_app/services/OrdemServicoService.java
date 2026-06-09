@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,11 @@ public class OrdemServicoService {
         if (novoStatus == null) {
             throw new IllegalArgumentException("O novo status não pode ser nulo.");
         }
+        if (novoStatus == OrdemServico.Status.FINALIZADO) {
+            os.setDataEntrega(LocalDate.now());
+            BigDecimal valorCalculado = calcularValorTotalFinal(os);
+            os.setValorFinal(valorCalculado);
+        }
 
         os.setStatus(novoStatus);
         return osRepository.save(os);
@@ -47,6 +53,23 @@ public class OrdemServicoService {
         }
         osRepository.delete(os);
     }
+    public BigDecimal calcularValorTotalFinal(OrdemServico os) {
+        BigDecimal totalMaoDeObra = os.getOrcamento().getValorTotal();
+        if (totalMaoDeObra == null) {
+            totalMaoDeObra = BigDecimal.ZERO;
+        }
+
+        BigDecimal totalMateriais = os.getMateriaisUsados().stream()
+                .map(osMaterial -> {
+                    BigDecimal valorUnitario = osMaterial.getMaterial().getValor();
+                    BigDecimal quantidade = BigDecimal.valueOf(osMaterial.getQtdUsada());
+                    return valorUnitario.multiply(quantidade);
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return totalMaoDeObra.add(totalMateriais);
+    }
+
     @Transactional
     public OrdemServico converterOrcamentoParaOS(Integer idOrcamento) {
         Orcamento orcamento = orcamentoService.buscarPorId(idOrcamento)

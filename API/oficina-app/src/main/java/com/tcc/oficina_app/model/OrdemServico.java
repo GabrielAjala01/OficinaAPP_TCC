@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ public class OrdemServico {
     @Column(length = 20, nullable = false)
     private Status status;
 
+    @Column(name = "valor_final", precision = 12, scale = 2)
+    private BigDecimal valorFinal = BigDecimal.ZERO;
 
 
     @OneToOne(optional = false)

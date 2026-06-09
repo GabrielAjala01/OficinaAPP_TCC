@@ -41,7 +41,7 @@ public class OrdemServicoController {
                     m.getQtdUsada()
             );
         }).collect(Collectors.toList()));
-
+        dto.setValorFinal(os.getValorFinal());
         return dto;
     }
     @GetMapping

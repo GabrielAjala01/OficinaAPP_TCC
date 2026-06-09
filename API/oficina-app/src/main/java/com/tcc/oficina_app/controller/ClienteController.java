@@ -77,6 +77,22 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+    @GetMapping("/pesquisa")
+    public ResponseEntity<List<ClienteDTO>> buscarPorNome(@RequestParam String nome) {
+        List<ClienteDTO> resultado = clienteService.buscarPorNome(nome).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(resultado);
+    }
+    @GetMapping("/documento/{cpfCnpj}")
+    public ResponseEntity<ClienteDTO> buscarPorCpfCnpj(@PathVariable String cpfCnpj) {
+        try {
+            Cliente cliente = clienteService.buscarPorCpfCnpj(cpfCnpj);
+            return ResponseEntity.ok(toDTO(cliente));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @PutMapping("/{id}")
     public ResponseEntity<ClienteDTO> atualizarCliente(@PathVariable Integer id, @RequestBody ClienteDTO dto) {
         dto.setIdCliente(id);

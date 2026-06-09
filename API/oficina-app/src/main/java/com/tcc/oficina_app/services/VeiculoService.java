@@ -64,10 +64,9 @@ public class VeiculoService {
         return veiculoRepository.findByPlaca(placa.toUpperCase())
                 .orElseThrow(() -> new IllegalArgumentException("Veículo não encontrado com placa: " + placa));
     }
-
-    //public List<Veiculo> listarPorCliente(Integer idCliente) {
-        //return veiculoRepository.findByIdCliente(idCliente);
-    //}
+    public List<Veiculo> listarTodos() {
+        return veiculoRepository.findAll();
+    }
 
     @Transactional
     public void deletar(String placa) {
