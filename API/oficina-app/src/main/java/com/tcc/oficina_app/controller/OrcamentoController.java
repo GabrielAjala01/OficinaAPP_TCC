@@ -1,6 +1,7 @@
 package com.tcc.oficina_app.controller;
 
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import com.tcc.oficina_app.DTO.ItemServicoDTO;
 import com.tcc.oficina_app.DTO.OrcamentoDTO;
 import com.tcc.oficina_app.model.*;
@@ -169,6 +170,22 @@ public class OrcamentoController {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> gerarPdfOrcamento(@PathVariable Integer id) {
+        try {
+            byte[] pdf = orcamentoService.gerarPdfOrcamento(id);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=Orcamento_" + id + ".pdf");
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

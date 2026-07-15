@@ -8,24 +8,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import java.io.ByteArrayOutputStream;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
 public class OrcamentoService {
+    @Autowired
     private final OrcamentoRepository orcamentoRepository;
     private final ItemServicoRepository itemServicoRepository;
     private final ServicoService servicoService;
     private final ClienteService clienteService;
     private final VeiculoService veiculoService;
+    @Autowired
+    private TemplateEngine templateEngine;
 
     public Optional<Orcamento> buscarPorId(Integer id) {
         return orcamentoRepository.findById(id);
@@ -140,4 +146,28 @@ public class OrcamentoService {
         orcamento.setValorTotal(novoTotal.setScale(2, RoundingMode.HALF_UP));
         return orcamentoRepository.save(orcamento);
     }
+    public byte[] gerarPdfOrcamento(Integer idOrcamento) throws Exception {
+        Orcamento orcamento = orcamentoRepository.findById(idOrcamento)
+                .orElseThrow(() -> new RuntimeException("Orçamento não encontrado: " + idOrcamento));
+
+        Context context = new Context();
+        context.setVariable("orcamento", orcamento);
+        context.setVariable("cliente", orcamento.getCliente());
+        context.setVariable("veiculo", orcamento.getVeiculo());
+
+        context.setVariable("itens", orcamento.getItensServico());
+
+        String html = templateEngine.process("pdf/orcamento", context);
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withHtmlContent(html, "/");
+            builder.toStream(os);
+            builder.run();
+
+            return os.toByteArray();
+        }
+    }
+
 }
