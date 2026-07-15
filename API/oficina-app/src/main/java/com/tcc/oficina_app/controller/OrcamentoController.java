@@ -29,6 +29,9 @@ public class OrcamentoController {
         dto.setValorTotal(orcamento.getValorTotal());
         dto.setIdCliente(orcamento.getCliente().getIdCliente());
         dto.setPlacaVeiculo(orcamento.getVeiculo().getPlaca());
+        if (orcamento.getFuncionario() != null) {
+            dto.setIdFuncionario(orcamento.getFuncionario().getIdFuncionario());
+        }
 
         dto.setItens(orcamento.getItensServico().stream().map(item -> {
             ItemServicoDTO itemdto = new ItemServicoDTO();
@@ -48,6 +51,11 @@ public class OrcamentoController {
 
         if (dto.getSituacao() != null) {
             orcamento.setSituacao(dto.getSituacao());
+        }
+        if (dto.getIdFuncionario() != null) {
+            Funcionario funcionario = new Funcionario();
+            funcionario.setIdFuncionario(dto.getIdFuncionario());
+            orcamento.setFuncionario(funcionario);
         }
         if (dto.getIdCliente() != null) {
             Cliente cliente = new Cliente();

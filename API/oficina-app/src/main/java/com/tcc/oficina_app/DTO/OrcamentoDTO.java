@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 public class OrcamentoDTO {
     private Integer idOrcamento;
+    private Integer idFuncionario;
     private StatusOrcamento situacao;
     private BigDecimal valorTotal;
     private Integer idCliente;

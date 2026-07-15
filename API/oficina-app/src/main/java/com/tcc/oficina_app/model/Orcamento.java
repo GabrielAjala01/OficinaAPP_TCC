@@ -27,6 +27,10 @@ public class Orcamento {
     @EqualsAndHashCode.Include
     private Integer idOrcamento;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_funcionario")
+    private Funcionario funcionario;
+
     @Column(nullable = false)
     private LocalDate data = LocalDate.now();
 

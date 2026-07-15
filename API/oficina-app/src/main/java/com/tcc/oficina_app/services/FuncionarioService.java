@@ -3,6 +3,7 @@ package com.tcc.oficina_app.services;
 import com.tcc.oficina_app.model.Funcionario;
 import com.tcc.oficina_app.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,8 @@ public class FuncionarioService {
         if (funcionario.getSenha() == null || funcionario.getSenha().trim().isEmpty()) {
             throw new IllegalArgumentException("Senha é um campo obrigatório");
         }
+        String senhaCriptografada = new BCryptPasswordEncoder().encode(funcionario.getSenha());
+        funcionario.setSenha(senhaCriptografada);
 
         return funcionarioRepository.save(funcionario);
     }
