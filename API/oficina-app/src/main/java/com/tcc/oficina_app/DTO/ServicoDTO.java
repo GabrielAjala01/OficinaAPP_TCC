@@ -15,4 +15,13 @@ public class ServicoDTO {
 
 
     private List<Long> idsSubServicos;
+    private List<SubServicoDetalheDTO> subServicosDetalhes;
+
+    @Data
+    public static class SubServicoDetalheDTO {
+        private Long id;
+        private String nome;
+        private List<SubServicoDetalheDTO> subServicosDetalhes;
+    }
+
 }

@@ -31,8 +31,14 @@ public class ServicoController {
                 .map(sss -> sss.getSubServico().getId())
                 .collect(Collectors.toList());
         dto.setIdsSubServicos(subServicoIds);
+
+        List<ServicoDTO.SubServicoDetalheDTO> detalhes = servico.getSubServicos().stream()
+                .map(sss -> servicoService.mapearDetalhes(sss.getSubServico()))
+                .collect(Collectors.toList());
+        dto.setSubServicosDetalhes(detalhes);
         return dto;
     }
+
 
     @GetMapping
     public ResponseEntity<List<ServicoDTO>> listarTodos() {

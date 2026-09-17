@@ -1,6 +1,6 @@
 package com.tcc.oficina_app.services;
 
-
+import com.tcc.oficina_app.DTO.ServicoDTO;
 import com.tcc.oficina_app.model.Servico;
 import com.tcc.oficina_app.model.ServicoSubServico;
 import com.tcc.oficina_app.repository.ServicoRepository;
@@ -37,7 +37,7 @@ public class ServicoService {
             throw new IllegalArgumentException("O valor do serviço deve ser fornecido e não pode ser negativo.");
         }
         Set<ServicoSubServico> subServicos = servico.getSubServicos();
-        servico.setSubServicos(new HashSet<>()); // Limpa a coleção antes de salvar para evitar problemas com o CascadeType.ALL
+        servico.setSubServicos(new HashSet<>());
 
         Servico servicoSalvo = servicoRepository.save(servico);
         servicoSalvo.setSubServicos(new HashSet<>());
@@ -111,5 +111,20 @@ public class ServicoService {
         return servicoRepository.save(principal);
     }
 
+    //mapeando recurção com DTO
+
+    public ServicoDTO.SubServicoDetalheDTO mapearDetalhes(Servico servico) {
+        ServicoDTO.SubServicoDetalheDTO dto = new ServicoDTO.SubServicoDetalheDTO();
+        dto.setId(servico.getId());
+        dto.setNome(servico.getNome());
+
+        if (servico.getSubServicos() != null && !servico.getSubServicos().isEmpty()) {
+            List<ServicoDTO.SubServicoDetalheDTO> filhos = servico.getSubServicos().stream()
+                    .map(sss -> mapearDetalhes(sss.getSubServico()))
+                    .collect(Collectors.toList());
+            dto.setSubServicosDetalhes(filhos);
+        }
+        return dto;
+    }
 
 }
